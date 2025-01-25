@@ -46,18 +46,32 @@ class AnAdventure:
         for event in pygame.event.get():  # To access the events that Pygame detects
             if event.type == pygame.QUIT:
                 sys.exit()
-
             elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_RIGHT:
-                    self.human.moving_right = True
-                elif event.key == pygame.K_LEFT:
-                    self.human.moving_left = True
-
+                self._check_keydown_events(event)
             elif event.type == pygame.KEYUP:
-                if event.key == pygame.K_RIGHT:
-                    self.human.moving_right = False
-                elif event.key == pygame.K_LEFT:
-                    self.human.moving_left = False
+                self._check_keyup_events(event)
+
+    def _check_keydown_events(self, event):
+        """| Respond to key presses |"""
+        if event.key == pygame.K_RIGHT:
+            self.human.moving_right = True
+        elif event.key == pygame.K_LEFT:
+            self.human.moving_left = True
+        if event.key == pygame.K_UP:
+            self.human.moving_up = True
+        elif event.key == pygame.K_DOWN:
+            self.human.moving_down = True
+
+    def _check_keyup_events(self, event):
+        """| Respond to key releases |"""
+        if event.key == pygame.K_RIGHT:
+            self.human.moving_right = False
+        elif event.key == pygame.K_LEFT:
+            self.human.moving_left = False
+        if event.key == pygame.K_UP:
+            self.human.moving_up = False
+        elif event.key == pygame.K_DOWN:
+            self.human.moving_down = False
 
 
 if __name__ == "__main__":
