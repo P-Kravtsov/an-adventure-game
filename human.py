@@ -18,17 +18,24 @@ class Human:
         # Start each new human at the bottom center of the screen
         self.rect.midbottom = self.screen_rect.midbottom
 
-        # Movement flag; start with a human that's not moving
+        # Store a float for the human's exact horizontal position
+        self.x = float(self.rect.x)  # | self.x = self.rect.x |
+
+        # Movement flags; start with a human that's not moving
         self.moving_right = False
         self.moving_left = False
 
     def update(self):
         """| Update the human's position based on the movement flag |"""
 
+        # Update the human's x value, not the rect
         if self.moving_right:
-            self.rect.x += 1
+            self.x += self.settings.human_speed_factor
         if self.moving_left:
-            self.rect.x -= 1
+            self.x -= self.settings.human_speed_factor
+
+        # Update rect object from self.x
+        self.rect.x = self.x
 
     def blitme(self):
         """| Draw the human at its current location |"""
