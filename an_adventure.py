@@ -3,6 +3,7 @@ import sys
 import pygame
 
 from settings import Settings
+from human import Human
 
 
 class AnAdventure:
@@ -17,6 +18,8 @@ class AnAdventure:
             (self.settings.screen_width, self.settings.screen_height))  # Create a display window
         pygame.display.set_caption("An Adventure")
 
+        self.human = Human(self)
+
     def run_game(self):
         """| Start the main loop for the game |"""
 
@@ -28,13 +31,14 @@ class AnAdventure:
 
             # Redraw the screen during each pass through the
             self.screen.fill(self.settings.bg_color)
+            self.human.blitme()
 
             # Make only a portion of the screen to be updated, instead of the entire area
-            pygame.display.update()  # pygame.display.flip() | 229 | https://www.pygame.org/docs/ref/display.html#pygame.display.update |
+            pygame.display.update()  # instead of "pygame.display.flip()" | 229 | https://www.pygame.org/docs/ref/display.html#pygame.display.update |
             self.clock.tick(60)  # Limit the while loop to run at 60 FPS
 
 
 if __name__ == "__main__":
     # Make a game instance, run the game
-    an_adventure = AnAdventure()
-    an_adventure.run_game()
+    adventure = AnAdventure()
+    adventure.run_game()
