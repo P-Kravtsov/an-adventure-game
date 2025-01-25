@@ -24,18 +24,27 @@ class AnAdventure:
         """| Start the main loop for the game |"""
 
         while True:
+            self._check_events()
+            self._update_screen()
+
             # Watch for keyboard and mouse events (event is an action that the user performs - pressing a key or moving the mouse)
             for event in pygame.event.get():  # To access the events that Pygame detects
                 if event.type == pygame.QUIT:
                     sys.exit()
 
-            # Redraw the screen during each pass through the
-            self.screen.fill(self.settings.bg_color)
-            self.human.blitme()
+    def _update_screen(self):
+        """| Update images on the screen, and flip to the new screen |"""
 
-            # Make only a portion of the screen to be updated, instead of the entire area
-            pygame.display.update()  # instead of "pygame.display.flip()" | 229 | https://www.pygame.org/docs/ref/display.html#pygame.display.update |
-            self.clock.tick(60)  # Limit the while loop to run at 60 FPS
+        # Redraw the screen during each pass through the
+        self.screen.fill(self.settings.bg_color)
+        self.human.blitme()
+
+    def _check_events(self):
+        """| Respond to key presses and mouse events |"""
+
+        # Make only a portion of the screen to be updated, instead of the entire area
+        pygame.display.update()  # instead of "pygame.display.flip()" | 229 | https://www.pygame.org/docs/ref/display.html#pygame.display.update |
+        self.clock.tick(60)  # Limit the while loop to run at 60 FPS
 
 
 if __name__ == "__main__":
