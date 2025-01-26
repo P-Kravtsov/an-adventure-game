@@ -1,7 +1,8 @@
 import sys
-
 import pygame
+import tkinter as tk
 
+from tkinter import messagebox
 from settings import Settings
 from human import Human
 
@@ -57,10 +58,12 @@ class AnAdventure:
             self.human.moving_right = True
         elif event.key == pygame.K_LEFT:
             self.human.moving_left = True
-        if event.key == pygame.K_UP:
+        elif event.key == pygame.K_UP:
             self.human.moving_up = True
         elif event.key == pygame.K_DOWN:
             self.human.moving_down = True
+        elif event.key == pygame.K_q:
+            self._confirm_exit()
 
     def _check_keyup_events(self, event):
         """| Respond to key releases |"""
@@ -68,10 +71,18 @@ class AnAdventure:
             self.human.moving_right = False
         elif event.key == pygame.K_LEFT:
             self.human.moving_left = False
-        if event.key == pygame.K_UP:
+        elif event.key == pygame.K_UP:
             self.human.moving_up = False
         elif event.key == pygame.K_DOWN:
             self.human.moving_down = False
+
+    def _confirm_exit(self):
+        """| Confirm exit when 'q' key is pressed |"""
+        root = tk.Tk()
+        root.withdraw()  # Hide the root window
+        if messagebox.askokcancel("Quit", "Do you really want to quit?"):
+            sys.exit()
+        root.destroy()
 
 
 if __name__ == "__main__":
