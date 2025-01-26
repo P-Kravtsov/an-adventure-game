@@ -14,8 +14,9 @@ class AnAdventure:
         pygame.init()
         self.clock = pygame.time.Clock()
         self.settings = Settings()
-        self.screen = pygame.display.set_mode(
-            (self.settings.screen_width, self.settings.screen_height))  # Create a display window
+        self.screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)  # Fullscreen mode
+        self.settings.screen_width = self.screen.get_rect().width,
+        self.settings.screen_height = self.screen.get_rect().height
         pygame.display.set_caption("An Adventure")
 
         self.human = Human(self)
@@ -65,7 +66,7 @@ class AnAdventure:
             self.human.moving_up = True
         elif event.key == pygame.K_DOWN:
             self.human.moving_down = True
-        elif event.key == pygame.K_q:
+        elif event.key == pygame.K_q or event.key == pygame.K_ESCAPE:
             self._confirm_exit()
 
     def _check_keyup_events(self, event):
@@ -82,7 +83,8 @@ class AnAdventure:
     def _confirm_exit(self):
         """| Confirm exit when 'q' key is pressed |"""
         font = pygame.font.Font(None, 36)
-        text = font.render("Do you want to quit? Press (Q)uit / (Y)es to leave or (N)o to stay", True, (0, 0, 0))
+        text = font.render("Quit? Press (Q)uit / (Y)es / Escape to leave or (N)o to stay", True, (0, 0, 0))
+        print("Q or Y pressed - escaping")
         self.screen.blit(text, (50, 50))
         pygame.display.flip()
 
@@ -91,10 +93,7 @@ class AnAdventure:
                 if event.type == pygame.QUIT:
                     sys.exit()
                 if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_y:  # Yes to quit
-                        pygame.quit()
-                        sys.exit()
-                    elif event.key == pygame.K_q:  # Yes to quit
+                    if event.key == pygame.K_y or event.key == pygame.K_q or event.key == pygame.K_ESCAPE:  # Yes / Q / Esc to quit
                         pygame.quit()
                         sys.exit()
                     elif event.key == pygame.K_n:  # No to exit confirmation
