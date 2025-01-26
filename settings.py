@@ -11,3 +11,5 @@ class Settings:
 
         # Ship settings
         self.human_speed_factor = 11.5
+
+        self.fps = 60 # Frames per second

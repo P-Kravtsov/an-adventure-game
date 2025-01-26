@@ -1,8 +1,6 @@
 import sys
 import pygame
-import tkinter as tk
 
-from tkinter import messagebox
 from settings import Settings
 from human import Human
 
@@ -21,15 +19,19 @@ class AnAdventure:
         pygame.display.set_caption("An Adventure")
 
         self.human = Human(self)
+        self.running = True
+
 
     def run_game(self):
         """| Start the main loop for the game |"""
 
-        while True:
+        while self.running:
             self._check_events()
             self.human.update()
             self._update_screen()
-            self.clock.tick(60)  # Limit the while loop to run at 60 FPS
+            self.clock.tick(self.settings.fps)  # Limit the while loop to run at 60 FPS
+        pygame.quit()
+        sys.exit()
 
     def _update_screen(self):
         """| Update images on the screen, and flip to the new screen |"""
@@ -38,11 +40,10 @@ class AnAdventure:
         self.screen.fill(self.settings.bg_color)
         self.human.blitme()
 
-        pygame.display.update()  # instead of "pygame.display.flip()" | 229 | https://www.pygame.org/docs/ref/display.html#pygame.display.update |
+        pygame.display.flip()  # instead of "pygame.display.update()" | 229 | https://www.pygame.org/docs/ref/display.html#pygame.display.update |
 
     def _check_events(self):
         """| Respond to key presses and mouse events |"""
-
         # Tracking keyboard and mouse events (event is an action that the user performs - pressing a key or moving the mouse)
         for event in pygame.event.get():  # To access the events that Pygame detects
             if event.type == pygame.QUIT:
@@ -51,6 +52,8 @@ class AnAdventure:
                 self._check_keydown_events(event)
             elif event.type == pygame.KEYUP:
                 self._check_keyup_events(event)
+            if event.type == pygame.QUIT:
+                self.running = False
 
     def _check_keydown_events(self, event):
         """| Respond to key presses |"""
@@ -78,11 +81,24 @@ class AnAdventure:
 
     def _confirm_exit(self):
         """| Confirm exit when 'q' key is pressed |"""
-        root = tk.Tk()
-        root.withdraw()  # Hide the root window
-        if messagebox.askokcancel("Quit", "Do you really want to quit?"):
-            sys.exit()
-        root.destroy()
+        font = pygame.font.Font(None, 36)
+        text = font.render("Do you want to quit? Press (Q)uit / (Y)es to leave or (N)o to stay", True, (0, 0, 0))
+        self.screen.blit(text, (50, 50))
+        pygame.display.flip()
+
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    sys.exit()
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_y:  # Yes to quit
+                        pygame.quit()
+                        sys.exit()
+                    elif event.key == pygame.K_q:  # Yes to quit
+                        pygame.quit()
+                        sys.exit()
+                    elif event.key == pygame.K_n:  # No to exit confirmation
+                        return
 
 
 if __name__ == "__main__":

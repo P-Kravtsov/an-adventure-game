@@ -32,10 +32,12 @@ class Human:
         """| Update the human's position based on the movement flag |"""
 
         # Update the human's x value, not the rect
+
+        # Check if the character is moving to the right and hasn't reached the screen's right edge.
         if self.moving_right and self.rect.right < self.screen_rect.right:
-            self.x += self.settings.human_speed_factor
-        if self.moving_left and self.rect.left > 0:
-            self.x -= self.settings.human_speed_factor
+            self.x += self.settings.human_speed_factor  # Move right by increasing x-coordinate
+        if self.moving_left and self.rect.left > 0:  # check left and if reached the screen's left edge
+            self.x -= self.settings.human_speed_factor  # Move left by decreasing x-coordinate
         if self.moving_up and self.rect.top > 0:
             self.y -= self.settings.human_speed_factor
         if self.moving_down and self.rect.bottom < self.screen_rect.bottom:
