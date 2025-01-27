@@ -16,7 +16,7 @@ class Human:
         self.rect = self.image.get_rect()
 
         # Start each new human at the bottom center of the screen
-        self.rect.midbottom = self.screen_rect.midbottom
+        self.rect.topleft = self.screen_rect.topleft
 
         # Store a float for the human's exact horizontal position
         self.x = float(self.rect.x)  # | self.x = self.rect.x |
