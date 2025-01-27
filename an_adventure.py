@@ -3,7 +3,7 @@ import pygame
 
 from settings import Settings
 from human import Human
-
+from enemy import Enemy
 
 class AnAdventure:
     """| Overall class to manage game assets and behavior |"""
@@ -20,6 +20,7 @@ class AnAdventure:
         pygame.display.set_caption("An Adventure")
 
         self.human = Human(self)
+        self.enemy = Enemy(self)
         self.running = True
 
     def run_game(self):
@@ -28,6 +29,7 @@ class AnAdventure:
         while self.running:
             self._check_events()
             self.human.update()
+            self.enemy.update()
             self._update_screen()
             self.clock.tick(self.settings.fps)  # Limit the while loop to run at 60 FPS
         pygame.quit()
@@ -38,7 +40,8 @@ class AnAdventure:
 
         # Redraw the screen during each pass through the
         self.screen.fill(self.settings.bg_color)
-        self.human.blitme()
+        self.human.blitme() # Draw the player
+        self.enemy.blitme() # Draw the enemy
 
         pygame.display.flip()  # instead of "pygame.display.update()" | 229 | https://www.pygame.org/docs/ref/display.html#pygame.display.update |
 
