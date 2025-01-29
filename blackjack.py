@@ -12,6 +12,11 @@ CARD_WIDTH, CARD_HEIGHT = 80, 120
 SUITS = ['♥', '♦', '♠', '♣']
 RANKS = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
 
+# Global variables
+player_turn = True
+game_over = False
+winner_text = ""
+
 # Initialize Pygame
 pygame.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -55,14 +60,14 @@ def calculate_hand_value(hand):
     value = 0
     aces = 0
     for card in hand:
-        rank = card[:-1] # - Extracts the rank (everything except the last character (suit) - `8H` becomes `H`, `AS` becomes `S`)
-        if rank in 'JQK':
+        card_rank = card[:-1] # - Extracts the rank (everything except the last character (suit) - `8H` becomes `H`, `AS` becomes `S`)
+        if card_rank in 'JQK':
             value += 10
-        elif rank == 'A':
+        elif card_rank == 'A':
             aces += 1
             value += 11
         else:
-            value += int(rank)
+            value += int(card_rank)
 
     while value > 21 and aces:
         value -= 10
@@ -88,7 +93,7 @@ def draw_button(text, x, y, width, height):
 
 def reset_game():
     global player_hand, dealer_hand, deck, player_turn, game_over, winner_text
-    deck = [f'{rank}{suit}' for suit in SUITS for rank in RANKS]
+    deck = [f'{card_rank}{card_suit}' for card_suit in SUITS for card_rank in RANKS]
     random.shuffle(deck)
     player_hand = [deck.pop(), deck.pop()]
     dealer_hand = [deck.pop(), deck.pop()]
