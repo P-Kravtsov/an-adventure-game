@@ -2,10 +2,11 @@ import pygame
 import random
 
 # Constants
-WIDTH, HEIGHT = 800, 600
-WHITE = (255, 255, 255)
+WIDTH, HEIGHT = 900, 650
+WHITE = (210, 210, 210)
 BLACK = (0, 0, 0)
-GREEN = (0, 128, 0)
+GREEN = (0, 100, 20)
+SILVER = (135, 135, 135)
 CARD_WIDTH, CARD_HEIGHT = 80, 120
 
 # Card suits and ranks
@@ -16,6 +17,9 @@ RANKS = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
 player_turn = True
 game_over = False
 winner_text = ""
+shuffle_message = ""
+shuffle_count = 0
+previous_shuffles = []
 
 # Initialize Pygame
 pygame.init()
@@ -24,7 +28,7 @@ pygame.display.set_caption("Blackjack")
 font = pygame.font.SysFont('Arial', 36)
 clock = pygame.time.Clock()
 
-# Load card images
+# Create card images
 card_images = {}
 for suit in SUITS:
     for rank in RANKS:
@@ -92,7 +96,7 @@ def draw_button(text, x, y, width, height):
 
 
 def reset_game():
-    global player_hand, dealer_hand, deck, player_turn, game_over, winner_text
+    global player_hand, dealer_hand, deck, player_turn, game_over, winner_text, shuffle_message, shuffle_count, previous_shuffles
     deck = [f'{card_rank}{card_suit}' for card_suit in SUITS for card_rank in RANKS]
     random.shuffle(deck)
     player_hand = [deck.pop(), deck.pop()]
@@ -100,6 +104,20 @@ def reset_game():
     player_turn = True
     game_over = False
     winner_text = ""
+    shuffle_message = ""
+    shuffle_count = 0
+    previous_shuffles = []
+
+
+def shuffle_deck():
+    global deck, shuffle_message, shuffle_count, previous_shuffles
+    if shuffle_count < 3:
+        previous_shuffles.append(deck[:3])  # Store the top three cards before shuffling
+        random.shuffle(deck)
+        shuffle_count += 1
+        shuffle_message = f"Deck has been shuffled {shuffle_count}/3 times!"
+    else:
+        shuffle_message = "3 times shuffle limit!"
 
 
 def check_winner():
@@ -120,15 +138,29 @@ def check_winner():
     game_over = True
 
 
+def draw_previous_shuffles():
+    x_offset = WIDTH - (3 * (CARD_WIDTH + 10)) - 50  # Position the cards on the right side
+    y_offset = 20
+    for i, shuffle in enumerate(previous_shuffles):
+        shuffle_text = font.render(f'Shuffle {i+1}:', True, SILVER)
+        screen.blit(shuffle_text, (x_offset, y_offset))
+        for j, card in enumerate(shuffle):
+            screen.blit(card_images[card], (x_offset + j * (CARD_WIDTH + 10), y_offset + 40))
+        y_offset += CARD_HEIGHT + 60
+
 def main():
-    global player_turn, game_over, winner_text
+    global player_turn, game_over, winner_text, shuffle_message
     running = True
     player_turn = True
     game_over = False
     winner_text = ""
-    more_button_rect = pygame.Rect(350, 500, 100, 50)
-    stop_button_rect = pygame.Rect(500, 500, 100, 50)
-    replay_button_rect = pygame.Rect(650, 500, 100, 50)
+    shuffle_message = ""
+    draw_shuffles = False  # Flag to control drawing previous shuffles
+    more_button_rect = pygame.Rect(450, 580, 100, 50)
+    stop_button_rect = pygame.Rect(600, 580, 100, 50)
+    replay_button_rect = pygame.Rect(750, 580, 100, 50)
+    shuffle_button_rect = pygame.Rect(300, 580, 100, 50)
+    draw_shuffles_button_rect = pygame.Rect(40, 580, 200, 50)
 
     while running:
         for event in pygame.event.get():
@@ -145,8 +177,14 @@ def main():
                         while calculate_hand_value(dealer_hand) < 17:
                             dealer_hand.append(deck.pop())
                         check_winner()
-                elif game_over and replay_button_rect.collidepoint(event.pos):
-                    reset_game()
+                    elif shuffle_button_rect.collidepoint(event.pos):  # Handle shuffle button click
+                        shuffle_deck()
+                elif game_over:
+                    if replay_button_rect.collidepoint(event.pos):
+                        reset_game()
+                        draw_shuffles = False  # Reset the flag when the game is reset
+                    elif draw_shuffles_button_rect.collidepoint(event.pos):  # Handle draw previous shuffles button click
+                        draw_shuffles = True  # Set the flag to draw previous shuffles
 
         screen.fill(GREEN)
         draw_hand(player_hand, 50, 400)
@@ -155,18 +193,26 @@ def main():
         player_value = calculate_hand_value(player_hand)
         dealer_value = calculate_hand_value(dealer_hand)
 
-        player_text = font.render(f'Player: {player_value}', True, BLACK)
-        dealer_text = font.render(f'Dealer: {dealer_value if not player_turn else "??"}', True, BLACK)
+        player_text = font.render(f'Player score: {player_value}', True, SILVER)
+        dealer_text = font.render(f'Dealer score: {dealer_value if not player_turn else "??"}', True, SILVER)
 
         screen.blit(player_text, (50, 350))
-        screen.blit(dealer_text, (50, 10))
+        screen.blit(dealer_text, (50, 5))
 
-        draw_button("More", 350, 500, 100, 50)
-        draw_button("Stop", 500, 500, 100, 50)
+        draw_button("More", 450, 580, 100, 50)
+        draw_button("Stop", 600, 580, 100, 50)
+        draw_button("Shuffle", 300, 580, 100, 50)
         if game_over:
-            draw_button("Replay", 650, 500, 100, 50)
+            draw_button("Replay", 750, 580, 100, 50)
+            draw_button("Draw Shuffles", 40, 580, 200, 50)
             winner_text_render = font.render(winner_text, True, BLACK)
-            screen.blit(winner_text_render, (WIDTH // 2 - winner_text_render.get_width() // 2, HEIGHT // 2))
+            screen.blit(winner_text_render, (50, HEIGHT // 2 - 130))
+            if draw_shuffles:  # Draw previous shuffles only if the flag is set
+                draw_previous_shuffles()
+
+        if shuffle_message:
+            shuffle_message_render = font.render(shuffle_message, True, SILVER)
+            screen.blit(shuffle_message_render, (50, HEIGHT // 2 - 60))
 
         pygame.display.flip()
         clock.tick(30)
