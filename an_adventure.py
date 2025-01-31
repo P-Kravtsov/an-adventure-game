@@ -1,3 +1,4 @@
+import math
 import sys
 import pygame
 
@@ -32,6 +33,12 @@ class AnAdventure:
             self.enemy.update()
             self._update_screen()
             self.clock.tick(self.settings.fps)  # Limit the while loop to run at 60 FPS
+
+            # Check the distance between human and enemy
+            distance = self._calculate_distance(self.human, self.enemy)
+            if distance <= 20:
+                self._start_blackjack_game()
+
         pygame.quit()
         sys.exit()
 
@@ -101,6 +108,17 @@ class AnAdventure:
                     elif event.key == pygame.K_n:  # No to exit confirmation
                         return
 
+    def _calculate_distance(self, obj1, obj2):
+        """Calculate the distance between two objects."""
+        dx = obj1.rect.centerx - obj2.rect.centerx
+        dy = obj1.rect.centery - obj2.rect.centery
+        return math.sqrt(dx**2 + dy**2)
+
+    def _start_blackjack_game(self):
+        """Start the Blackjack game."""
+        import blackjack
+        blackjack_game = blackjack.BlackjackGame()
+        blackjack_game.main()
 
 if __name__ == "__main__":
     # Make a game instance, run the game
