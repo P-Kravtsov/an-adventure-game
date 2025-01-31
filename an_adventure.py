@@ -36,7 +36,7 @@ class AnAdventure:
 
             # Check the distance between human and enemy
             distance = self._calculate_distance(self.human, self.enemy)
-            if distance <= 20:
+            if distance <= 35:
                 self._start_blackjack_game()
 
         pygame.quit()
@@ -109,13 +109,13 @@ class AnAdventure:
                         return
 
     def _calculate_distance(self, obj1, obj2):
-        """Calculate the distance between two objects."""
+        """| Calculate the distance between two objects |"""
         dx = obj1.rect.centerx - obj2.rect.centerx
         dy = obj1.rect.centery - obj2.rect.centery
         return math.sqrt(dx**2 + dy**2)
 
     def _start_blackjack_game(self):
-        """Start the Blackjack game."""
+        """| Start the Blackjack game |"""
         import blackjack
         blackjack_game = blackjack.BlackjackGame()
         blackjack_game.main()

@@ -27,6 +27,8 @@ class BlackjackGame:
         self.shuffle_message = ""  # Message about card shuffling
         self.shuffle_count = 0  # Track number of shuffles
         self.previous_shuffles = []  # Stores the top 3 cards of previous shuffles
+        self.wins = 0
+        self.losses = 0
 
         # Initialize Pygame and game UI
         pygame.init()
@@ -120,13 +122,17 @@ class BlackjackGame:
         # Determine the outcome of the game
         if player_value > 21:
             self.winner_text = "Player busts! Dealer wins!"
+            self.losses += 1
             self.player_turn = False
         elif dealer_value > 21:
             self.winner_text = "Dealer busts! Player wins!"
+            self.wins += 1
         elif player_value > dealer_value:
             self.winner_text = "Player wins!"
+            self.wins += 1
         elif player_value < dealer_value:
             self.winner_text = "Dealer wins!"
+            self.losses += 1
         else:
             self.winner_text = "It's a tie!"
         self.game_over = True
@@ -231,6 +237,12 @@ class BlackjackGame:
             if self.shuffle_message:
                 shuffle_message_render = self.font.render(self.shuffle_message, True, SILVER)
                 self.screen.blit(shuffle_message_render, (50, HEIGHT // 2 - 60))
+
+            # Display win and loss counts
+            win_text = self.font.render(f'Wins: {self.wins}', True, SILVER)
+            loss_text = self.font.render(f'Losses: {self.losses}', True, SILVER)
+            self.screen.blit(win_text, (WIDTH - 200, 10))
+            self.screen.blit(loss_text, (WIDTH - 200, 50))
 
             # Update the display and limit the frame rate
             pygame.display.flip()
