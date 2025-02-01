@@ -171,6 +171,12 @@ class BlackjackGame:
 
     def main(self):
         """Main game loop to handle events and render the game."""
+
+        print("Launching Blackjack...")
+        #import time
+        #time.sleep(2) # Simulate a delay before the game starts for 2 seconds
+        print("Blackjack game over.")
+
         running = True
         draw_shuffles = False  # Flag to show previous shuffles
         more_button_rect = pygame.Rect(450, 580, 100, 50)
