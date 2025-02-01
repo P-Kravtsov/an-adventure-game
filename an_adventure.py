@@ -24,7 +24,8 @@ class AnAdventure:
         self.human = Human(self)
         self.enemy = Enemy(self)
         self.running = True
-        self.paused = False  # Add this to track the paused state
+        self.paused = False
+        self.blackjack_triggered = False  # To prevent repeated Blackjack triggering
 
     # Old not working code -
     # distance = self._calculate_distance(self.human, self.enemy)
@@ -57,7 +58,9 @@ class AnAdventure:
 
         while self.running:
             self._check_events()
-            if not self.paused:  # Only update the game if not paused
+
+            # Pause logic ensures the game only updates if not paused
+            if not self.paused:
                 self.human.update()
                 self.enemy.update()
                 self._update_screen()
@@ -65,11 +68,14 @@ class AnAdventure:
                 # Check the distance between human and enemy
                 distance = self._calculate_distance(self.human, self.enemy)
                 print(f"Distance between human and enemy: {distance}")  # Debugging print
-                if distance <= 35:
-                    print("Monster radius triggered!")  # Debugging print
-                    self._start_blackjack_game()
 
-            self.clock.tick(self.settings.fps)  # Limit the loop to run at 60 FPS
+                # Trigger Blackjack only once
+                if distance <= 35 and not self.blackjack_triggered:
+                    print("Monster radius triggered! Starting Blackjack...")  # Debugging print
+                    self.blackjack_triggered = True  # Mark Blackjack as triggered
+                    self._start_blackjack_game()  # Start the Blackjack game
+
+            self.clock.tick(self.settings.fps)  # Maintain consistent FPS
 
         pygame.quit()
         sys.exit()
@@ -158,16 +164,20 @@ class AnAdventure:
         import subprocess
 
         print("Starting Blackjack...")  # Debugging print
-        self.paused = True  # Pause the adventure game
+        self.paused = True  # Pause the game while Blackjack runs
 
-        # Launch Blackjack in a new process
         try:
-            # Use Popen instead of run to avoid blocking
-            subprocess.Popen(["python", "blackjack.py"])  # Ensure "blackjack.py" is the correct script
+            # Ensure the path to blackjack.py is correct
+            import os
+            blackjack_path = os.path.join(os.path.dirname(__file__), 'blackjack.py')
+            subprocess.run(["python", blackjack_path])  # Replace with the exact path if needed
         except FileNotFoundError:
-            print("Error: blackjack.py not found!")
+            print(f"Error: blackjack.py not found at {blackjack_path}!")
+        except Exception as e:
+            print(f"Unexpected error occurred: {e}")
 
-        self.paused = False  # Resume the adventure game once Blackjack ends
+        self.paused = False  # Resume the adventure game after Blackjack ends
+        self.blackjack_triggered = False  # Allow retriggering if needed
         print("Blackjack ended, resuming AnAdventure...")
 
 
