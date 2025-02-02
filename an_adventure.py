@@ -16,7 +16,8 @@ class AnAdventure:
         pygame.init()
         self.clock = pygame.time.Clock()
         self.settings = Settings()
-        self.screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)  # Fullscreen mode
+        #self.screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)  # Fullscreen mode
+        self.screen = pygame.display.set_mode((self.settings.screen_width, self.settings.screen_height)) # Windowed mode
         self.settings.screen_width = self.screen.get_rect().width,
         self.settings.screen_height = self.screen.get_rect().height
         pygame.display.set_caption("An Adventure")
@@ -74,6 +75,8 @@ class AnAdventure:
                     print("Monster radius triggered! Starting Blackjack...")  # Debugging print
                     self.blackjack_triggered = True  # Mark Blackjack as triggered
                     self._start_blackjack_game()  # Start the Blackjack game
+            else:
+                self.show_pause_menu()  # Render pause menu if paused
 
             self.clock.tick(self.settings.fps)  # Maintain consistent FPS
 
@@ -94,6 +97,30 @@ class AnAdventure:
             self.screen.blit(text, (self.settings.screen_width[0] // 4, self.settings.screen_height // 2))
 
         pygame.display.flip()  # instead of "pygame.display.update()" | 229 | https://www.pygame.org/docs/ref/display.html#pygame.display.update |
+
+    def toggle_pause(self):
+        """Toggle the pause state of the game."""
+        self.paused = not self.paused
+
+        if self.paused:
+            print("The game is now paused.")
+        else:
+            print("The game has resumed.")
+
+    def show_pause_menu(self):
+        """| Display a pause menu |"""
+        # Black out the screen
+        overlay = pygame.Surface(self.screen.get_size())
+        overlay.set_alpha(128)  # Set transparency (0 is fully transparent, 255 is solid black)
+        overlay.fill((0, 0, 0))  # Black color
+        self.screen.blit(overlay, (0, 0))
+
+        # Render the "Paused" text
+        font = pygame.font.Font(None, 74)
+        text = font.render("Paused", True, (255, 255, 255))  # White text
+        self.screen.blit(text, (self.settings.screen_width // 2 - 100,
+                                self.settings.screen_height // 2 - 50))
+        pygame.display.flip()
 
     def _check_events(self):
         """| Respond to key presses and mouse events |"""
@@ -120,6 +147,8 @@ class AnAdventure:
             self.human.moving_down = True
         elif event.key == pygame.K_q or event.key == pygame.K_ESCAPE:
             self._confirm_exit()
+        elif event.key == pygame.K_p:
+                self.toggle_pause()
 
     def _check_keyup_events(self, event):
         """| Respond to key releases |"""
