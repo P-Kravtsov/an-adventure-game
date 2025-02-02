@@ -16,10 +16,11 @@ class AnAdventure:
         pygame.init()
         self.clock = pygame.time.Clock()
         self.settings = Settings()
-        #self.screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)  # Fullscreen mode
-        self.screen = pygame.display.set_mode((self.settings.screen_width, self.settings.screen_height)) # Windowed mode
-        self.settings.screen_width = self.screen.get_rect().width,
-        self.settings.screen_height = self.screen.get_rect().height
+        # self.screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)  # Fullscreen mode
+        self.screen = pygame.display.set_mode(
+            (self.settings.screen_width, self.settings.screen_height))  # Windowed mode
+        self.settings.screen_width = self.screen.get_rect().width  # Integer
+        self.settings.screen_height = self.screen.get_rect().height  # Integer
         pygame.display.set_caption("An Adventure")
 
         self.human = Human(self)
@@ -60,23 +61,35 @@ class AnAdventure:
         while self.running:
             self._check_events()
 
-            # Pause logic ensures the game only updates if not paused
             if not self.paused:
+                # Normal game logic
                 self.human.update()
-                self.enemy.update()
+
+                if self.enemy:
+                    self.enemy.update()
+                    distance = self._calculate_distance(self.human, self.enemy)
+
+                    # Trigger monster battle
+                    if distance <= 35 and not self.blackjack_triggered:
+                        print("Monster radius triggered! Game Paused, Starting Blackjack...")
+                        self.blackjack_triggered = True
+
+                        # Pause the game and show the pause screen immediately
+                        self.paused = True  # Manually pause
+                        self.show_pause_menu()  # Display the pause menu
+                        pygame.time.delay(500)  # Optional small delay for user feedback (0.5s)
+
+                        # Start the Blackjack game
+                        self._start_blackjack_game()
+
+                        # After returning from Blackjack, remove the monster
+                        self.enemy = None  # Remove monster
+                        self.paused = False  # Automatically resume the game
+
                 self._update_screen()
 
-                # Check the distance between human and enemy
-                distance = self._calculate_distance(self.human, self.enemy)
-                print(f"Distance between human and enemy: {distance}")  # Debugging print
-
-                # Trigger Blackjack only once
-                if distance <= 35 and not self.blackjack_triggered:
-                    print("Monster radius triggered! Starting Blackjack...")  # Debugging print
-                    self.blackjack_triggered = True  # Mark Blackjack as triggered
-                    self._start_blackjack_game()  # Start the Blackjack game
             else:
-                self.show_pause_menu()  # Render pause menu if paused
+                self.show_pause_menu()  # Show the updated pause menu while paused
 
             self.clock.tick(self.settings.fps)  # Maintain consistent FPS
 
@@ -89,12 +102,13 @@ class AnAdventure:
         # Redraw the screen during each pass through the
         self.screen.fill(self.settings.bg_color)
         self.human.blitme()  # Draw the player
-        self.enemy.blitme()  # Draw the enemy
+        if self.enemy:  # Draw the monster only if it exists
+            self.enemy.blitme()
 
         if self.paused:
             font = pygame.font.Font(None, 72)
             text = font.render("Game Paused - Blackjack in Progress", True, (255, 0, 0))
-            self.screen.blit(text, (self.settings.screen_width[0] // 4, self.settings.screen_height // 2))
+            self.screen.blit(text, (self.settings.screen_width // 4, self.settings.screen_height // 2))
 
         pygame.display.flip()  # instead of "pygame.display.update()" | 229 | https://www.pygame.org/docs/ref/display.html#pygame.display.update |
 
@@ -109,17 +123,29 @@ class AnAdventure:
 
     def show_pause_menu(self):
         """| Display a pause menu |"""
-        # Black out the screen
+
+        # Redraw the existing game screen (to ensure the game state shows correctly even when paused)
+        self.screen.fill(self.settings.bg_color)  # Refill the screen with the background color
+        self.human.blitme()  # Draw the player
+        if self.enemy:  # Draw the monster if it still exists
+            self.enemy.blitme()
+
+        # Add a transparent dim overlay over the screen
         overlay = pygame.Surface(self.screen.get_size())
-        overlay.set_alpha(128)  # Set transparency (0 is fully transparent, 255 is solid black)
-        overlay.fill((0, 0, 0))  # Black color
+        overlay.set_alpha(128)  # Transparency level (0=fully transparent, 255=opaque)
+        overlay.fill((0, 0, 0))  # Black overlay
         self.screen.blit(overlay, (0, 0))
 
-        # Render the "Paused" text
+        # Render the "Paused" text at the center of the screen
         font = pygame.font.Font(None, 74)
         text = font.render("Paused", True, (255, 255, 255))  # White text
-        self.screen.blit(text, (self.settings.screen_width // 2 - 100,
-                                self.settings.screen_height // 2 - 50))
+
+        # Center the paused text in the middle of the screen
+        pause_x = (self.settings.screen_width - text.get_width()) // 2
+        pause_y = (self.settings.screen_height - text.get_height()) // 2
+        self.screen.blit(text, (pause_x, pause_y))
+
+        # Update the display to show the paused menu
         pygame.display.flip()
 
     def _check_events(self):
@@ -148,7 +174,7 @@ class AnAdventure:
         elif event.key == pygame.K_q or event.key == pygame.K_ESCAPE:
             self._confirm_exit()
         elif event.key == pygame.K_p:
-                self.toggle_pause()
+            self.toggle_pause()
 
     def _check_keyup_events(self, event):
         """| Respond to key releases |"""
@@ -205,8 +231,6 @@ class AnAdventure:
         except Exception as e:
             print(f"Unexpected error occurred: {e}")
 
-        self.paused = False  # Resume the adventure game after Blackjack ends
-        self.blackjack_triggered = False  # Allow retriggering if needed
         print("Blackjack ended, resuming AnAdventure...")
 
 
