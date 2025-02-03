@@ -14,7 +14,9 @@ pygame.display.set_caption("Big complex choice")
 WHITE = (210, 210, 210)
 BLACK = (0, 0, 0)
 RED = (200, 0, 0)
-GREEN = (0, 200, 0)
+GREEN = (0, 220, 0)
+LIGHT_GREEN = (100, 255, 100)
+LIGHT_RED = (255, 100, 100)
 
 # Fonts
 font = pygame.font.SysFont('Arial', 40)
@@ -63,7 +65,7 @@ def draw_question(text):
     screen.blit(text_surface, (text_x, text_y))
 
 
-# Main loop
+# Main loop with hover effect
 running = True
 while running:
     screen.fill(WHITE)
@@ -77,20 +79,27 @@ while running:
             if yes_button.collidepoint(event.pos):
                 print("You clicked Yes!")
 
-    # Get mouse position and check hover over "No" button
+    # Get mouse position
     mouse_pos = pygame.mouse.get_pos()
+
+    # Hover effects for buttons
+    yes_button_color = LIGHT_GREEN if yes_button.collidepoint(mouse_pos) else GREEN
+    no_button_color = LIGHT_RED if no_button.collidepoint(mouse_pos) else RED
+
+    # Check if mouse is hovering over the "No" button
     if no_button.collidepoint(mouse_pos):
         move_no_button()
 
     # Draw the question above the buttons
     draw_question("Are you ready to grade the project?")
 
-    # Draw buttons with centered text
-    draw_button(yes_button, "Yes", GREEN, BLACK)
-    draw_button(no_button, "No", RED, BLACK)
+    # Draw buttons with hover effect
+    draw_button(yes_button, "Yes", yes_button_color, BLACK)
+    draw_button(no_button, "No", no_button_color, BLACK)
 
     # Update the display
     pygame.display.flip()
 
 # Quit pygame
 pygame.quit()
+
