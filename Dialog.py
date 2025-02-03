@@ -19,31 +19,32 @@ LIGHT_GREEN = (100, 255, 100)
 LIGHT_RED = (255, 100, 100)
 
 # Fonts
-font = pygame.font.SysFont('Arial', 40)
+main_font = pygame.font.SysFont('Arial', 40)
 question_font = pygame.font.SysFont('Arial', 30)
 
 
 class Button:
-    def __init__(self, x, y, width, height, text, default_color, hover_color, text_color, font):
-        self.rect = pygame.Rect(x, y, width, height)
-        self.text = text
+    def __init__(self, x_position, y_position, width, height, label, default_color, hover_color, label_color,
+                 button_font):
+        self.rect = pygame.Rect(x_position, y_position, width, height)
+        self.label = label
         self.default_color = default_color
         self.hover_color = hover_color
-        self.text_color = text_color
-        self.font = font
+        self.label_color = label_color
+        self.font = button_font  # Updated to remove shadowing
 
-    def draw(self, screen, mouse_pos):
+    def draw(self, target_screen, cursor_position):
         """Draws the button with hover effect if needed."""
-        color = self.hover_color if self.rect.collidepoint(mouse_pos) else self.default_color
-        pygame.draw.rect(screen, color, self.rect)
-        text_surface = self.font.render(self.text, True, self.text_color)
+        color = self.hover_color if self.rect.collidepoint(cursor_position) else self.default_color
+        pygame.draw.rect(target_screen, color, self.rect)
+        text_surface = self.font.render(self.label, True, self.label_color)
         text_x = self.rect.x + (self.rect.width - text_surface.get_width()) // 2
         text_y = self.rect.y + (self.rect.height - text_surface.get_height()) // 2
-        screen.blit(text_surface, (text_x, text_y))
+        target_screen.blit(text_surface, (text_x, text_y))
 
-    def is_clicked(self, mouse_pos, event):
+    def is_clicked(self, cursor_position, input_event):
         """Checks if the button is clicked."""
-        return self.rect.collidepoint(mouse_pos) and event.type == pygame.MOUSEBUTTONDOWN
+        return self.rect.collidepoint(cursor_position) and input_event.type == pygame.MOUSEBUTTONDOWN
 
 
 # Function to move the "No" button
@@ -59,17 +60,17 @@ def move_no_button():
             break
 
 
-def draw_question(text):
+def draw_question(question_text):
     """| Displays the question centered above the buttons |"""
-    text_surface = question_font.render(text, True, BLACK)
+    text_surface = question_font.render(question_text, True, BLACK)
     text_x = (SCREEN_WIDTH - text_surface.get_width()) // 2
     text_y = 100  # Position the text far above the buttons
     screen.blit(text_surface, (text_x, text_y))
 
 
 # Create buttons
-yes_button = Button(150, 250, 100, 50, "Yes", GREEN, LIGHT_GREEN, BLACK, font)
-no_button = Button(350, 250, 100, 50, "No", RED, LIGHT_RED, BLACK, font)
+yes_button = Button(150, 250, 100, 50, "Yes", GREEN, LIGHT_GREEN, BLACK, main_font)
+no_button = Button(350, 250, 100, 50, "No", RED, LIGHT_RED, BLACK, main_font)
 
 # Main loop
 running = True
@@ -77,23 +78,23 @@ while running:
     screen.fill(WHITE)
 
     # Event handling
-    mouse_pos = pygame.mouse.get_pos()
+    mouse_position = pygame.mouse.get_pos()
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
 
         # Handle button clicks
-        if yes_button.is_clicked(mouse_pos, event):
+        if yes_button.is_clicked(mouse_position, event):
             print("You clicked Yes!")
 
     # Check for "No" button hover to move it
-    if no_button.rect.collidepoint(mouse_pos):
+    if no_button.rect.collidepoint(mouse_position):
         move_no_button()
 
     # Draw elements on screen
     draw_question("Are you ready to grade the project?")
-    yes_button.draw(screen, mouse_pos)
-    no_button.draw(screen, mouse_pos)
+    yes_button.draw(screen, mouse_position)
+    no_button.draw(screen, mouse_position)
 
     # Update display
     pygame.display.flip()
