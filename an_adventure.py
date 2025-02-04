@@ -109,6 +109,22 @@ class AnAdventure:
                         self.enemy = None  # Remove monster
                         self.paused = False  # Automatically resume the game
 
+                # Add logic for the second enemy
+                if self.second_enemy is not None and player_moved:
+                    distance_to_second_enemy = self._calculate_distance(self.human, self.second_enemy)
+
+                    if distance_to_second_enemy <= 35:  # Adjust the radius as needed
+                        print("Second enemy detected! Pausing game and starting dialog...")
+                        self.paused = True  # Manually pause the game
+                        self.show_pause_menu()
+                        pygame.time.delay(500)
+
+                        # Launch Dialog.py
+                        self._start_dialog()
+
+                        #self.second_enemy = None  # Remove second enemy after the dialog ends
+                        self.paused = False
+
                 self._update_screen()
 
             else:
@@ -234,7 +250,7 @@ class AnAdventure:
         dx = obj1.rect.centerx - obj2.rect.centerx
         dy = obj1.rect.centery - obj2.rect.centery
         distance = math.sqrt(dx ** 2 + dy ** 2)
-        distance = round(distance, 2)  # Round to 2 decimal places
+        distance = int(round(distance))
         #print(f"Calculated distance: {distance}")  # Debugging print
         return distance
 
@@ -261,6 +277,25 @@ class AnAdventure:
         except Exception as e:
             print(f"Unexpected error occurred: {e}")
 
+    def _start_dialog(self):
+        """Start the Dialog game in a new window and pause the adventure game."""
+        import subprocess
+        import os
+
+        print("Launching dialog...")  # Debugging print
+        self.paused = True  # Pause the game while the dialog runs
+
+        try:
+            # Dialog logic
+            dialog_path = os.path.join(os.path.dirname(__file__), 'Dialog.py')
+            if not os.path.exists(dialog_path):
+                print(f"Error: Dialog.py not found at {dialog_path}. Please ensure the file exists.")
+                return
+            subprocess.run(["python", dialog_path])  # Launch Dialog.py
+        except FileNotFoundError:
+            print("Dialog.py file not found or path is incorrect!")
+        except Exception as e:
+            print(f"An unexpected error occurred when starting Dialog: {e}")
 
 if __name__ == "__main__":
     # Make a game instance, run the game

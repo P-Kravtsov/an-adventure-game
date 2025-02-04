@@ -28,7 +28,7 @@ class Enemy:
     def update(self):
         """Update the enemy's position or behavior (if any)."""
         # This is for a simple vertical movement example, expand as needed.
-        self.rect.y = self.y  # Sync rectangle with position.
+        self.rect.y = int(self.y)  # Sync rectangle with position.
 
     def blitme(self):
         """Draw the enemy at its current location."""
