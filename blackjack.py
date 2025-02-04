@@ -175,7 +175,7 @@ class BlackjackGame:
         print("Launching Blackjack...")
         #import time
         #time.sleep(2) # Simulate a delay before the game starts for 2 seconds
-        print("Blackjack game over.")
+        #print("Blackjack game over.")
 
         running = True
         draw_shuffles = False  # Flag to show previous shuffles

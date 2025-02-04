@@ -31,21 +31,29 @@ class Human:
     def update(self):
         """| Update the human's position based on the movement flag |"""
 
+        moved = False  # Add a moved flag
+
         # Update the human's x value, not the rect
 
         # Check if the character is moving to the right and hasn't reached the screen's right edge.
         if self.moving_right and self.rect.right < self.screen_rect.right:
             self.x += self.settings.human_speed_factor  # Move right by increasing x-coordinate
+            moved = True  # Mark as moved
         if self.moving_left and self.rect.left > 0:  # check left and if reached the screen's left edge
             self.x -= self.settings.human_speed_factor  # Move left by decreasing x-coordinate
+            moved = True  # Mark as moved
         if self.moving_up and self.rect.top > 0:
             self.y -= self.settings.human_speed_factor
+            moved = True  # Mark as moved
         if self.moving_down and self.rect.bottom < self.screen_rect.bottom:
             self.y += self.settings.human_speed_factor
+            moved = True  # Mark as moved
 
         # Update rect object from self.x
         self.rect.x = self.x
         self.rect.y = self.y
+
+        return moved  # Return the movement flag
 
     def blitme(self):
         """| Draw the human at its current location |"""

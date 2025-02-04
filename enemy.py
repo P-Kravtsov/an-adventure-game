@@ -2,30 +2,33 @@ import pygame
 
 
 class Enemy:
-    """Class to manage the enemy."""
+    """Class to manage enemies."""
 
-    def __init__(self, game):
+    def __init__(self, game, x=200, y=200, image_path='images/enemy.bmp'):
         """Initialize the enemy and set its starting position."""
         self.screen = game.screen
         self.settings = game.settings
 
-        # Load the enemy image and set its rect (position and size).
-        self.image = pygame.image.load('images/enemy.bmp')
+        # Load the specified enemy image (default: 'enemy.bmp').
+        try:
+            self.image = pygame.image.load(image_path)
+        except pygame.error as e:
+            print(f"Error loading enemy image at {image_path}: {e}")
+            raise
+
+        # Set its rectangular position and size.
         self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
 
-        # Start the enemy at a specific position.
-        self.rect.x =  200
-        self.rect.y =  200
-
-        # Store the enemy's exact position as a float for fine-tuned movement.
+        # Store the position as floats for fine-tuned movement.
         self.x = float(self.rect.x)
         self.y = float(self.rect.y)
 
     def update(self):
-        """Update the enemy's position or behavior."""
-        # Example: Slowly move the enemy downward.
-        #self.y += 0.5
-        self.rect.y = self.y  # Update rect based on new position.
+        """Update the enemy's position or behavior (if any)."""
+        # This is for a simple vertical movement example, expand as needed.
+        self.rect.y = self.y  # Sync rectangle with position.
 
     def blitme(self):
         """Draw the enemy at its current location."""

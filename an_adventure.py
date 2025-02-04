@@ -11,23 +11,43 @@ class AnAdventure:
     """| Overall class to manage game assets and behavior |"""
 
     def __init__(self):
-        """| Initialize the game, and create game resources |"""
-
+        """Initialize the game, and create game resources."""
         pygame.init()
         self.clock = pygame.time.Clock()
         self.settings = Settings()
-        # self.screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)  # Fullscreen mode
         self.screen = pygame.display.set_mode(
             (self.settings.screen_width, self.settings.screen_height))  # Windowed mode
-        self.settings.screen_width = self.screen.get_rect().width  # Integer
-        self.settings.screen_height = self.screen.get_rect().height  # Integer
         pygame.display.set_caption("An Adventure")
 
+        # Create main game objects
         self.human = Human(self)
+
+        # First enemy at default location.
         self.enemy = Enemy(self)
+
+        # Adjust enemy position to be precisely in the bottom-right corner
+        enemy_image_path = 'images/enemy2.bmp'  # Path to the enemy image
+        temp_enemy = Enemy(self, image_path=enemy_image_path)  # Temporarily load to get rect dimensions
+        enemy_x = self.settings.screen_width - temp_enemy.rect.width
+        enemy_y = self.settings.screen_height - temp_enemy.rect.height
+        self.second_enemy = Enemy(self, x=enemy_x, y=enemy_y, image_path=enemy_image_path)
+
         self.running = True
         self.paused = False
-        self.blackjack_triggered = False  # To prevent repeated Blackjack triggering
+        self.blackjack_triggered = False
+
+    def _update_screen(self):
+        """Update all images on the screen and flip to the new screen."""
+        self.screen.fill(self.settings.bg_color)
+
+        # Draw game entities.
+        self.human.blitme()  # Draw the player
+        if self.enemy:  # First enemy
+            self.enemy.blitme()
+        if self.second_enemy:  # Second enemy
+            self.second_enemy.blitme()
+
+        pygame.display.flip()
 
     # Old not working code -
     # distance = self._calculate_distance(self.human, self.enemy)
@@ -63,9 +83,12 @@ class AnAdventure:
 
             if not self.paused:
                 # Normal game logic
-                self.human.update()
+                player_moved = self.human.update()  # Check if human moved
 
-                if self.enemy:
+                if self.human:
+                    player_moved = self.human.update()  # Ensure self.human is not None
+
+                if self.enemy is not None and player_moved:  # Only calculate if the player moved
                     self.enemy.update()
                     distance = self._calculate_distance(self.human, self.enemy)
 
@@ -96,21 +119,21 @@ class AnAdventure:
         pygame.quit()
         sys.exit()
 
-    def _update_screen(self):
-        """| Update images on the screen, and flip to the new screen |"""
-
-        # Redraw the screen during each pass through the
-        self.screen.fill(self.settings.bg_color)
-        self.human.blitme()  # Draw the player
-        if self.enemy:  # Draw the monster only if it exists
-            self.enemy.blitme()
-
-        if self.paused:
-            font = pygame.font.Font(None, 72)
-            text = font.render("Game Paused - Blackjack in Progress", True, (255, 0, 0))
-            self.screen.blit(text, (self.settings.screen_width // 4, self.settings.screen_height // 2))
-
-        pygame.display.flip()  # instead of "pygame.display.update()" | 229 | https://www.pygame.org/docs/ref/display.html#pygame.display.update |
+    # def _update_screen(self):
+    #     """| Update images on the screen, and flip to the new screen |"""
+    #
+    #     # Redraw the screen during each pass through the loop
+    #     self.screen.fill(self.settings.bg_color)
+    #     self.human.blitme()  # Draw the player
+    #     if self.enemy:  # Draw the monster only if it exists
+    #         self.enemy.blitme()
+    #
+    #     # if self.paused:
+    #     #     font = pygame.font.Font(None, 72)
+    #     #     text = font.render("Game Paused - Blackjack in Progress", True, (255, 0, 0))
+    #     #     self.screen.blit(text, (self.settings.screen_width // 4, self.settings.screen_height // 2))
+    #
+    #     pygame.display.flip()  # instead of "pygame.display.update()" | 229 | https://www.pygame.org/docs/ref/display.html#pygame.display.update |
 
     def toggle_pause(self):
         """Toggle the pause state of the game."""
@@ -211,27 +234,32 @@ class AnAdventure:
         dx = obj1.rect.centerx - obj2.rect.centerx
         dy = obj1.rect.centery - obj2.rect.centery
         distance = math.sqrt(dx ** 2 + dy ** 2)
-        print(f"Calculated distance: {distance}")  # Debugging print
+        distance = round(distance, 2)  # Round to 2 decimal places
+        #print(f"Calculated distance: {distance}")  # Debugging print
         return distance
 
     def _start_blackjack_game(self):
         """| Start the Blackjack game in a new window and pause the adventure game |"""
         import subprocess
+        import os
 
         print("Starting Blackjack...")  # Debugging print
         self.paused = True  # Pause the game while Blackjack runs
 
+        # Define blackjack_path outside try block
+        blackjack_path = os.path.join(os.path.dirname(__file__), 'blackjack.py')
+
+        # Check if the blackjack.py file exists
+        if not os.path.exists(blackjack_path):
+            print(f"Error: blackjack.py not found at {blackjack_path}. Please ensure the file exists.")
+            return  # Exit the method early if path is invalid
+
         try:
-            # Ensure the path to blackjack.py is correct
-            import os
-            blackjack_path = os.path.join(os.path.dirname(__file__), 'blackjack.py')
-            subprocess.run(["python", blackjack_path])  # Replace with the exact path if needed
+            subprocess.run(["python", blackjack_path])  # Execute the Blackjack game
         except FileNotFoundError:
             print(f"Error: blackjack.py not found at {blackjack_path}!")
         except Exception as e:
             print(f"Unexpected error occurred: {e}")
-
-        print("Blackjack ended, resuming AnAdventure...")
 
 
 if __name__ == "__main__":

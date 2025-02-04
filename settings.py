@@ -10,6 +10,6 @@ class Settings:
         self.bg_color = (234, 230, 230)
 
         # Ship settings
-        self.human_speed_factor = 11.5
+        self.human_speed_factor = 5.5
 
         self.fps = 60 # Frames per second
