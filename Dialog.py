@@ -24,17 +24,19 @@ question_font = pygame.font.SysFont('Arial', 30)
 
 
 class Button:
-    def __init__(self, x_position, y_position, width, height, label, default_color, hover_color, label_color,
-                 button_font):
+    """A class for buttons with hover effect and click detection."""
+
+    def __init__(self, x_position, y_position, width, height, label,
+                 default_color, hover_color, label_color, button_font):
         self.rect = pygame.Rect(x_position, y_position, width, height)
         self.label = label
         self.default_color = default_color
         self.hover_color = hover_color
         self.label_color = label_color
-        self.font = button_font  # Updated to remove shadowing
+        self.font = button_font
 
     def draw(self, target_screen, cursor_position):
-        """Draws the button with hover effect if needed."""
+        """Draws the button, changing color on hover."""
         color = self.hover_color if self.rect.collidepoint(cursor_position) else self.default_color
         pygame.draw.rect(target_screen, color, self.rect)
         text_surface = self.font.render(self.label, True, self.label_color)
@@ -43,19 +45,90 @@ class Button:
         target_screen.blit(text_surface, (text_x, text_y))
 
     def is_clicked(self, cursor_position, input_event):
-        """Checks if the button is clicked."""
+        """Checks if the button is clicked by the player."""
         return self.rect.collidepoint(cursor_position) and input_event.type == pygame.MOUSEBUTTONDOWN
 
 
-# Function to move a button
+class UIManager:
+    """Handles rendering of UI elements like questions and messages."""
+
+    def __init__(self):
+        self.question = ""
+        self.sub_message = ""
+
+    def set_question(self, question, sub_message=""):
+        """Sets the main question and optional sub-message."""
+        self.question = question
+        self.sub_message = sub_message
+
+    def draw(self, window):
+        """Draws the question and sub-message in the center of the top half of the screen."""
+        # Draw the main question
+        question_surface = question_font.render(self.question, True, BLACK)
+        question_x = (SCREEN_WIDTH - question_surface.get_width()) // 2
+        question_y = (SCREEN_HEIGHT // 2 - question_surface.get_height()) // 2  # Center in top half
+        window.blit(question_surface, (question_x, question_y))
+
+        # Draw sub-message below the question
+        if self.sub_message:
+            sub_message_surface = question_font.render(self.sub_message, True, BLACK)
+            sub_message_x = (SCREEN_WIDTH - sub_message_surface.get_width()) // 2
+            sub_message_y = question_y + question_surface.get_height() + 10  # Offset slightly below
+            window.blit(sub_message_surface, (sub_message_x, sub_message_y))
+
+class GameManager:
+    """Manages the game state and transitions."""
+
+    def __init__(self):
+        self.state = "main"  # Default state at startup
+
+    def handle_event(self, input_event, cursor_position, interface_manager):
+        """Handles events for the current game state."""
+        if self.state == "main":
+            # Handle clicks in the "main" state
+            if yes_button.is_clicked(cursor_position, input_event):
+                self.state = "grades"
+                interface_manager.set_question("What grade will you give to the project?")
+            elif no_button.rect.collidepoint(cursor_position):
+                move_button(no_button, [no_button, yes_button])
+        elif self.state == "grades":
+            # Handle clicks in the "grades" state
+            for grade_button in grades:
+                if grade_button.is_clicked(cursor_position, input_event):
+                    interface_manager.set_question(
+                        "What grade will you give to the project?",
+                        "Great choice! So unexpected and pleasant ><"
+                    )
+                elif grade_button.rect.collidepoint(cursor_position) and grade_button.label != "5":
+                    move_button(grade_button, grades)
+
+    def draw_buttons(self, pointer_position):
+        """Draws the appropriate buttons for each game state."""
+        if self.state == "main":
+            yes_button.draw(screen, pointer_position)
+            no_button.draw(screen, pointer_position)
+        elif self.state == "grades":
+            for grade_button in grades:
+                grade_button.draw(screen, pointer_position)
+
+
+def create_button(x, y, width, height, label, is_special=False):
+    """Creates and returns a Button with specified properties."""
+    if is_special:
+        default_color, hover_color = GREEN, LIGHT_GREEN
+    else:
+        default_color, hover_color = RED, LIGHT_RED
+    return Button(x, y, width, height, label, default_color, hover_color, BLACK, main_font)
+
+
 def move_button(button, all_buttons):
-    """Moves the specified button to a random position inside the bottom half of the screen."""
+    """Moves the specified button to a random valid position."""
     while True:
-        # Generate random position for the button within the bottom half of the screen
+        # Randomly position button within the bottom half of the screen
         button.rect.x = random.randint(0, SCREEN_WIDTH - button.rect.width)
         button.rect.y = random.randint(SCREEN_HEIGHT // 2, SCREEN_HEIGHT - button.rect.height)
 
-        # Ensure the button does not collide with any other button
+        # Make sure the button doesn't overlap with others
         collision = False
         for other_button in all_buttons:
             if other_button is not button and button.rect.colliderect(other_button.rect):
@@ -65,86 +138,37 @@ def move_button(button, all_buttons):
             break
 
 
-def draw_question(question_text, sub_message="Pick any option you like"):
-    """Displays the main question with an optional sub-message below it."""
-    # Render the main question
-    text_surface = question_font.render(question_text, True, BLACK)
-    text_x = (SCREEN_WIDTH - text_surface.get_width()) // 2
-    text_y = 15  # Place it near the top of the screen
-    screen.blit(text_surface, (text_x, text_y))
+# Button setup
+yes_button = create_button(150, 250, 100, 50, "Yes", is_special=True)
+no_button = create_button(350, 250, 100, 50, "No", is_special=False)
+grades = [
+    create_button(50 + (100 * (i - 1)), SCREEN_HEIGHT // 2 + 50, 50, 50, str(i), is_special=(i == 5))
+    for i in range(1, 6)
+]
 
-    # Render the optional sub-message slightly below the main question
-    if sub_message:
-        sub_message_surface = question_font.render(sub_message, True, BLACK)
-        sub_message_x = (SCREEN_WIDTH - sub_message_surface.get_width()) // 2
-        sub_message_y = text_y + 50  # Place it slightly below the main question
-        screen.blit(sub_message_surface, (sub_message_x, sub_message_y))
+# Instantiate classes for UI and game management
+ui_manager = UIManager()
+game_manager = GameManager()
 
+# Set initial question
+ui_manager.set_question("Are you ready to grade the project?")
 
-# Create buttons
-yes_button = Button(150, 250, 100, 50, "Yes", GREEN, LIGHT_GREEN, BLACK, main_font)
-no_button = Button(350, 250, 100, 50, "No", RED, LIGHT_RED, BLACK, main_font)
-
-# Create grade buttons in the same row
-grades = []
-for i in range(1, 6):
-    if i == 5:  # Grade 5 button (different color)
-        default_color, hover_color = GREEN, LIGHT_GREEN
-    else:  # Other grade buttons (red color)
-        default_color, hover_color = RED, LIGHT_RED
-
-    # Horizontal placement for the grades in the bottom half
-    grade_button = Button(50 + (100 * (i - 1)), SCREEN_HEIGHT // 2 + 50, 50, 50, str(i), default_color, hover_color,
-                          BLACK, main_font)
-    grades.append(grade_button)
-
-# State to track message
-message = ""
-
-# Application state
-state = "main"  # Can be "main" or "grades"
-
-# Main loop
+# Main game loop
 running = True
 while running:
     screen.fill(WHITE)
-
-    # Get mouse position
     mouse_position = pygame.mouse.get_pos()
 
-    # Event handling
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            running = False
+            running = False  # Exit game
+        game_manager.handle_event(event, mouse_position, ui_manager)
 
-        # Handle button clicks based on state
-        if state == "main":
-            if yes_button.is_clicked(mouse_position, event):
-                # Switch to the grades state
-                state = "grades"
-                message = ""  # Clear any previous message
-            if no_button.rect.collidepoint(mouse_position):
-                move_button(no_button, [no_button, yes_button])
-        elif state == "grades":
-            for grade_button in grades:
-                if grade_button.is_clicked(mouse_position, event):
-                    # Display message for selected grade
-                    message = "Great choice! So unexpected and pleasant ><"
-                elif grade_button.rect.collidepoint(mouse_position) and grade_button.label != "5":
-                    # Avoid hover only for grades except 5
-                    move_button(grade_button, grades)
+    # Draw the UI elements and buttons
+    ui_manager.draw(screen)
+    game_manager.draw_buttons(mouse_position)
 
-    # Drawing based on state
-    if state == "main":
-        draw_question("Are you ready to grade the project?")
-        yes_button.draw(screen, mouse_position)
-        no_button.draw(screen, mouse_position)
-    elif state == "grades":
-        draw_question("What grade will you give to the project?", message)
-        for grade_button in grades:
-            grade_button.draw(screen, mouse_position)
-
-    # Update the display
+    # Update the screen
     pygame.display.flip()
 
 # Quit pygame
