@@ -1,5 +1,6 @@
 import pygame
 import random
+import time  # To introduce the delay before quitting
 
 # Initialize pygame
 pygame.init()
@@ -55,6 +56,7 @@ class UIManager:
     def __init__(self):
         self.question = ""
         self.sub_message = ""
+        self.final_message = False  # Tracks when the final state is shown
 
     def set_question(self, question, sub_message=""):
         """Sets the main question and optional sub-message."""
@@ -76,11 +78,13 @@ class UIManager:
             sub_message_y = question_y + question_surface.get_height() + 10  # Offset slightly below
             window.blit(sub_message_surface, (sub_message_x, sub_message_y))
 
+
 class GameManager:
     """Manages the game state and transitions."""
 
     def __init__(self):
         self.state = "main"  # Default state at startup
+        self.exit_triggered = False  # Added to track if we should exit after timeout
 
     def handle_event(self, input_event, cursor_position, interface_manager):
         """Handles events for the current game state."""
@@ -95,10 +99,12 @@ class GameManager:
             # Handle clicks in the "grades" state
             for grade_button in grades:
                 if grade_button.is_clicked(cursor_position, input_event):
-                    interface_manager.set_question(
-                        "What grade will you give to the project?",
-                        "Great choice! So unexpected and pleasant ><"
-                    )
+                    if grade_button.label == "5":  # If grade 5 is chosen
+                        interface_manager.set_question(
+                            "Great choice! So unexpected and pleasant ><",
+                            "Closing in 5 seconds..."
+                        )
+                        self.exit_triggered = True  # Prepare to exit
                 elif grade_button.rect.collidepoint(cursor_position) and grade_button.label != "5":
                     move_button(grade_button, grades)
 
@@ -155,6 +161,8 @@ ui_manager.set_question("Are you ready to grade the project?")
 
 # Main game loop
 running = True
+exit_timer = None  # Timer to track the 5-second delay before exiting
+
 while running:
     screen.fill(WHITE)
     mouse_position = pygame.mouse.get_pos()
@@ -163,6 +171,14 @@ while running:
         if event.type == pygame.QUIT:
             running = False  # Exit game
         game_manager.handle_event(event, mouse_position, ui_manager)
+
+    # If exit is triggered, initialize the timer
+    if game_manager.exit_triggered and not exit_timer:
+        exit_timer = time.time()
+
+    # Check if the timer has reached 5 seconds and exit
+    if exit_timer and time.time() - exit_timer >= 5:
+        running = False
 
     # Draw the UI elements and buttons
     ui_manager.draw(screen)

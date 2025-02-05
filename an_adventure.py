@@ -407,11 +407,19 @@ class AnAdventure:
             if not os.path.exists(dialog_path):
                 print(f"Error: Dialog.py not found at {dialog_path}. Please ensure the file exists.")
                 return
-            subprocess.run(["python", dialog_path])  # Launch Dialog.py
+
+            # Run Dialog.py and wait for it to finish
+            subprocess.run(["python", dialog_path], check=True)
+
+            # After Dialog.py finishes, exit the current game
+            print("Dialog finished. Exiting the game...")
+            self.running = False  # This will stop the main game loop in `run_game`
+
         except FileNotFoundError:
             print("Dialog.py file not found or path is incorrect!")
         except Exception as e:
             print(f"An unexpected error occurred when starting Dialog: {e}")
+
 
 if __name__ == "__main__":
     # Make a game instance, run the game
