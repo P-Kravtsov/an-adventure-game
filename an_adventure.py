@@ -111,52 +111,58 @@ class AnAdventure:
         pygame.quit()
         sys.exit()
 
-    def show_start_screen(self):
-        """| Display the start screen with game rules and instructions to start |"""
-        self.screen.fill(self.settings.bg_color)  # Fill background with the color from settings
+    def display_message_screen(self, title, message_lines, continue_message):
+        """Generalized method to display a screen with a title, messages, and a 'Press any key' prompt."""
+        self.screen.fill(self.settings.bg_color)  # Fill the screen with background color
 
-        # Title Display
-        font_title = pygame.font.Font(None, 74)  # Large font for title
-        title_text = font_title.render("An Adventure", True, (0, 0, 0))
+        # Render the title
+        font_title = pygame.font.Font(None, 74)
+        title_text = font_title.render(title, True, (0, 0, 0))  # Black text for title
         title_x = (self.settings.screen_width - title_text.get_width()) // 2
-        title_y = 50  # Position at the top
+        title_y = 50
         self.screen.blit(title_text, (title_x, title_y))
 
-        # Rules/Instructions
-        font_rules = pygame.font.Font(None, 36)  # Medium font for rules
-        rules = [
-            "Rules:",
-            "1. Goal - to deal with Pavel and leave.",
-            "2. Move using arrow keys or WASD.",
-            "3. Press 'P' to pause the game.",
-            "4. Press 'Q' to quit at any time."
-        ]
+        # Render the message lines
+        font_message = pygame.font.Font(None, 36)
         y_offset = 150
-        for line in rules:
-            rule_text = font_rules.render(line, True, (0, 0, 0))  # Black text
-            rule_x = (self.settings.screen_width - rule_text.get_width()) // 2
-            self.screen.blit(rule_text, (rule_x, y_offset))
-            y_offset += 40  # Spacing between rules
+        for line in message_lines:
+            message_text = font_message.render(line, True, (0, 0, 0))  # Black text for message
+            message_x = (self.settings.screen_width - message_text.get_width()) // 2
+            self.screen.blit(message_text, (message_x, y_offset))
+            y_offset += 40  # Adjust line spacing as needed
 
-        # Start Instructions
-        font_start = pygame.font.Font(None, 48)  # Slightly larger font for start message
-        start_text = font_start.render("Press any key to start the game", True, (0, 100, 20))  # Yellow
-        start_x = (self.settings.screen_width - start_text.get_width()) // 2
-        start_y = self.settings.screen_height - 100
-        self.screen.blit(start_text, (start_x, start_y))
+        # Render the continue message
+        font_continue = pygame.font.Font(None, 48)
+        continue_text = font_continue.render(continue_message, True, (0, 100, 20))  # Green text for 'Press any key'
+        continue_x = (self.settings.screen_width - continue_text.get_width()) // 2
+        continue_y = self.settings.screen_height - 100
+        self.screen.blit(continue_text, (continue_x, continue_y))
 
-        # Update display
+        # Update the screen
         pygame.display.flip()
 
-        # Wait for user input on the start screen
+        # Wait for any key press
         waiting = True
         while waiting:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
-                elif event.type == pygame.KEYDOWN:  # Any key pressed
+                elif event.type == pygame.KEYDOWN:  # Continue on any key press
                     waiting = False
+
+    def show_start_screen(self):
+        """Display the start screen using the generalized display method."""
+        title = "An Adventure"
+        message_lines = [
+            "Rules:",
+            "1. Goal - to deal with Pavel and leave.",
+            "2. Move using arrow keys or WASD.",
+            "3. Press 'P' to pause the game.",
+            "4. Press 'Q' to quit at any time."
+        ]
+        continue_message = "Press any key to start the game"
+        self.display_message_screen(title, message_lines, continue_message)
 
     def toggle_pause(self):
         """Toggle the pause state of the game."""
@@ -198,63 +204,19 @@ class AnAdventure:
 
     def show_custom_message(self):
         """Display a custom message before showing the Blackjack rules."""
-        self.screen.fill(self.settings.bg_color)  # Fill background with the color from settings
-
-        # Title
-        font_title = pygame.font.Font(None, 74)
-        title_text = font_title.render("Blackjack Challenge", True, (0, 0, 0))
-        title_x = (self.settings.screen_width - title_text.get_width()) // 2
-        title_y = 50
-        self.screen.blit(title_text, (title_x, title_y))
-
-        # Custom Message
-        font_message = pygame.font.Font(None, 36)
+        title = "Blackjack Challenge"
         message_lines = [
             "Welcome to the ultimate Blackjack challenge!",
             "Show your skills by defeating the dealer.",
-            "Remember: Play smart but trust your luck!",
+            "Remember: Play smart but trust your luck!"
         ]
-        y_offset = 150
-        for line in message_lines:
-            message_text = font_message.render(line, True, (0, 0, 0))
-            message_x = (self.settings.screen_width - message_text.get_width()) // 2
-            self.screen.blit(message_text, (message_x, y_offset))
-            y_offset += 50  # Spacing between lines
-
-        # Continue Instructions
-        font_continue = pygame.font.Font(None, 48)
-        continue_text = font_continue.render("Press any key to see the rules.", True, (0, 100, 20))
-        continue_x = (self.settings.screen_width - continue_text.get_width()) // 2
-        continue_y = self.settings.screen_height - 100
-        self.screen.blit(continue_text, (continue_x, continue_y))
-
-        # Update the display
-        pygame.display.flip()
-
-        # Wait for user input
-        waiting = True
-        while waiting:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                    sys.exit()
-                elif event.type == pygame.KEYDOWN:  # Any key pressed
-                    waiting = False
+        continue_message = "Press any key to see the rules."
+        self.display_message_screen(title, message_lines, continue_message)
 
     def show_blackjack_rules(self):
-        """Display a rules window before starting the Blackjack game."""
-        self.screen.fill(self.settings.bg_color)  # Fill background with the color from settings
-
-        # Title
-        font_title = pygame.font.Font(None, 74)
-        title_text = font_title.render("Blackjack Rules", True, (0, 0, 0))  # White color for the title
-        title_x = (self.settings.screen_width - title_text.get_width()) // 2
-        title_y = 50
-        self.screen.blit(title_text, (title_x, title_y))
-
-        # Rules
-        font_rules = pygame.font.Font(None, 36)
-        rules = [
+        """Display the Blackjack rules using the generalized display method."""
+        title = "Blackjack Rules"
+        message_lines = [
             "1. Each player starts with two cards.",
             "2. The goal is to get as close to 21 as possible.",
             "3. Face cards are worth 10, and Aces can be 11 or 1.",
@@ -263,32 +225,8 @@ class AnAdventure:
             "6. If you exceed 21, you lose the round.",
             "7. You can shuffle the deck up to 3 times for 'luck'."
         ]
-        y_offset = 150
-        for line in rules:
-            rule_text = font_rules.render(line, True, (0, 0, 0))  # White for rules text
-            rule_x = (self.settings.screen_width - rule_text.get_width()) // 2
-            self.screen.blit(rule_text, (rule_x, y_offset))
-            y_offset += 40  # Spacing between lines
-
-        # Continue Instructions
-        font_start = pygame.font.Font(None, 48)
-        start_text = font_start.render("Press any key to continue to Blackjack", True, (0, 100, 20))
-        start_x = (self.settings.screen_width - start_text.get_width()) // 2
-        start_y = self.settings.screen_height - 100
-        self.screen.blit(start_text, (start_x, start_y))
-
-        # Update the display
-        pygame.display.flip()
-
-        # Wait for user input to proceed
-        waiting = True
-        while waiting:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                    sys.exit()
-                elif event.type == pygame.KEYDOWN:  # Any key pressed
-                    waiting = False
+        continue_message = "Press any key to continue to Blackjack"
+        self.display_message_screen(title, message_lines, continue_message)
 
     def _check_events(self):
         """| Respond to key presses and mouse events |"""
