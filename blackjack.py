@@ -92,6 +92,28 @@ class BlackjackGame:
         else:
             self.shuffle_message = "3 times shuffle limit!"  # Limit reached
 
+    def show_continue_or_exit_prompt(self):
+        """Display a prompt to either continue playing or quit after 4 wins."""
+        prompt_running = True
+        while prompt_running:
+            self.screen.fill(GREEN)  # Clear the screen
+            prompt_text = self.font.render("4 Wins! Continue (C) or Quit (Q)?", True, WHITE)
+            self.screen.blit(prompt_text, ((WIDTH - prompt_text.get_width()) // 2, HEIGHT // 2 - 50))
+
+            pygame.display.flip()
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    exit()
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_q or event.key == pygame.K_ESCAPE:  # Quit the game
+                        pygame.quit()
+                        exit()
+                    elif event.key == pygame.K_c:  # Continue playing
+                        prompt_running = False
+                        self.reset_game()  # Start a new game
+
     def calculate_hand_value(self, hand):
         """Calculate the Blackjack value of a given hand."""
         value = 0
@@ -172,12 +194,6 @@ class BlackjackGame:
 
     def main(self):
         """Main game loop to handle events and render the game."""
-
-        print("Launching Blackjack...")
-        # import time
-        # time.sleep(2) # Simulate a delay before the game starts for 2 seconds
-        # print("Blackjack game over.")
-
         running = True
         draw_shuffles = False  # Flag to show previous shuffles
         more_button_rect = pygame.Rect(450, 580, 100, 50)
@@ -210,6 +226,11 @@ class BlackjackGame:
                             draw_shuffles = False
                         elif draw_shuffles_button_rect.collidepoint(event.pos):  # "Draw Shuffles" button clicked
                             draw_shuffles = True  # Display previous shuffle results
+
+            # Trigger a prompt after 4 wins
+            if self.wins == 4:
+                self.show_continue_or_exit_prompt()
+                self.wins = 0  # Reset wins to prevent repeating the prompt
 
             # Clear the screen with a green background
             self.screen.fill(GREEN)

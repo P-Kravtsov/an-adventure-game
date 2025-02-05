@@ -206,8 +206,9 @@ class AnAdventure:
         """Display a custom message before showing the Blackjack rules."""
         title = "Blackjack Challenge"
         message_lines = [
-            "Welcome to the ultimate Blackjack challenge!",
-            "Show your skills by defeating the dealer.",
+            "Pavel turned out to be a card player",
+            "He offers to play blackjack.",
+            "4 wins and he leave.",
             "Remember: Play smart but trust your luck!"
         ]
         continue_message = "Press any key to see the rules."
