@@ -3,7 +3,7 @@ import random
 
 # Constants for screen dimensions and colors
 WIDTH, HEIGHT = 900, 650
-WHITE = (210, 210, 210)
+WHITE = (220, 220, 220)
 BLACK = (0, 0, 0)
 GREEN = (0, 100, 20)
 SILVER = (135, 135, 135)
@@ -170,9 +170,23 @@ class BlackjackGame:
                 self.screen.blit(self.card_images[card], (x + i * (CARD_WIDTH + 10), y))
 
     def draw_button(self, text, x, y, width, height):
-        """Draw a button with text."""
-        pygame.draw.rect(self.screen, BLACK, (x, y, width, height))  # Draw button background
-        pygame.draw.rect(self.screen, WHITE, (x + 2, y + 2, width - 4, height - 4))  # Button border
+        """Draw a button with text and apply a hover effect."""
+        # Get the current mouse position
+        mouse_pos = pygame.mouse.get_pos()
+
+        # Check if the mouse is hovering over the button
+        if x <= mouse_pos[0] <= x + width and y <= mouse_pos[1] <= y + height:
+            # Button hover color
+            button_color = (200, 200, 200)  # Lighter shade for hover effect
+        else:
+            # Normal button color
+            button_color = WHITE
+
+        # Draw the button
+        pygame.draw.rect(self.screen, button_color, (x, y, width, height))  # Button background
+        pygame.draw.rect(self.screen, BLACK, (x, y, width, height), 2)  # Button border
+
+        # Draw the button text
         button_text = self.font.render(text, True, BLACK)  # Button label
         self.screen.blit(button_text,
                          (x + (width - button_text.get_width()) // 2, y + (height - button_text.get_height()) // 2))
