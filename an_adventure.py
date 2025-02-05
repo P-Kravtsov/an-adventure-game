@@ -69,7 +69,7 @@ class AnAdventure:
                     distance = self._calculate_distance(self.human, self.enemy)
 
                     # Trigger monster battle
-                    if distance <= 35 and not self.blackjack_triggered:
+                    if distance <= 70 and not self.blackjack_triggered:
                         print("Monster radius triggered! Game Paused, Starting Blackjack...")
                         self.blackjack_triggered = True
 
@@ -89,7 +89,7 @@ class AnAdventure:
                 if self.second_enemy is not None and player_moved:
                     distance_to_second_enemy = self._calculate_distance(self.human, self.second_enemy)
 
-                    if distance_to_second_enemy <= 35:  # Adjust the radius as needed
+                    if distance_to_second_enemy <= 70:  # Adjust the radius as needed
                         print("Second enemy detected! Pausing game and starting dialog...")
                         self.paused = True  # Manually pause the game
                         self.show_pause_menu()
@@ -194,6 +194,55 @@ class AnAdventure:
         # Update the display to show the paused menu
         pygame.display.flip()
 
+    def show_blackjack_rules(self):
+        """Display a rules window before starting the Blackjack game."""
+        self.screen.fill(self.settings.bg_color)  # Fill background with the color from settings
+
+        # Title
+        font_title = pygame.font.Font(None, 74)
+        title_text = font_title.render("Blackjack Rules", True, (0, 0, 0))  # White color for the title
+        title_x = (self.settings.screen_width - title_text.get_width()) // 2
+        title_y = 50
+        self.screen.blit(title_text, (title_x, title_y))
+
+        # Rules
+        font_rules = pygame.font.Font(None, 36)
+        rules = [
+            "1. Each player starts with two cards.",
+            "2. The goal is to get as close to 21 as possible.",
+            "3. Face cards are worth 10, and Aces can be 11 or 1.",
+            "4. Choose 'More' to draw another card or 'Stop' to hold.",
+            "5. Dealer must draw until their total is at least 17.",
+            "6. If you exceed 21, you lose the round.",
+            "7. You can shuffle the deck up to 3 times for 'luck'."
+        ]
+        y_offset = 150
+        for line in rules:
+            rule_text = font_rules.render(line, True, (0, 0, 0))  # White for rules text
+            rule_x = (self.settings.screen_width - rule_text.get_width()) // 2
+            self.screen.blit(rule_text, (rule_x, y_offset))
+            y_offset += 40  # Spacing between lines
+
+        # Continue Instructions
+        font_start = pygame.font.Font(None, 48)
+        start_text = font_start.render("Press any key to continue to Blackjack", True, (0, 100, 20))
+        start_x = (self.settings.screen_width - start_text.get_width()) // 2
+        start_y = self.settings.screen_height - 100
+        self.screen.blit(start_text, (start_x, start_y))
+
+        # Update the display
+        pygame.display.flip()
+
+        # Wait for user input to proceed
+        waiting = True
+        while waiting:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+                elif event.type == pygame.KEYDOWN:  # Any key pressed
+                    waiting = False
+
     def _check_events(self):
         """| Respond to key presses and mouse events |"""
         # Tracking keyboard and mouse events (event is an action that the user performs - pressing a key or moving the mouse)
@@ -266,16 +315,19 @@ class AnAdventure:
         import subprocess
         import os
 
+        print("Displaying Blackjack rules...")  # Debug log
+        self.show_blackjack_rules()  # Show the rules window before starting Blackjack
+
         print("Starting Blackjack...")  # Debugging print
         self.paused = True  # Pause the game while Blackjack runs
 
-        # Define blackjack_path outside try block
+        # Define blackjack_path outside the try block
         blackjack_path = os.path.join(os.path.dirname(__file__), 'blackjack.py')
 
         # Check if the blackjack.py file exists
         if not os.path.exists(blackjack_path):
             print(f"Error: blackjack.py not found at {blackjack_path}. Please ensure the file exists.")
-            return  # Exit the method early if path is invalid
+            return  # Exit the method early if the path is invalid
 
         try:
             subprocess.run(["python", blackjack_path])  # Execute the Blackjack game

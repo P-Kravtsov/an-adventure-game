@@ -15,6 +15,7 @@ RANKS = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
 
 
 class BlackjackGame:
+
     def __init__(self):
         """Initialize the game, Pygame, and its state."""
         # Game state variables
@@ -173,9 +174,9 @@ class BlackjackGame:
         """Main game loop to handle events and render the game."""
 
         print("Launching Blackjack...")
-        #import time
-        #time.sleep(2) # Simulate a delay before the game starts for 2 seconds
-        #print("Blackjack game over.")
+        # import time
+        # time.sleep(2) # Simulate a delay before the game starts for 2 seconds
+        # print("Blackjack game over.")
 
         running = True
         draw_shuffles = False  # Flag to show previous shuffles
@@ -247,8 +248,8 @@ class BlackjackGame:
             # Display win and loss counts
             win_text = self.font.render(f'Wins: {self.wins}', True, SILVER)
             loss_text = self.font.render(f'Losses: {self.losses}', True, SILVER)
-            self.screen.blit(win_text, (WIDTH - 200, 10))
-            self.screen.blit(loss_text, (WIDTH - 200, 50))
+            self.screen.blit(win_text, (WIDTH - 470, 10))
+            self.screen.blit(loss_text, (WIDTH - 470, 50))
 
             # Update the display and limit the frame rate
             pygame.display.flip()

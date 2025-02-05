@@ -4,7 +4,7 @@ import pygame
 class Enemy:
     """Class to manage enemies."""
 
-    def __init__(self, game, x=200, y=200, image_path='images/enemy.bmp'):
+    def __init__(self, game, x=500, y=300, image_path='images/enemy.bmp'):
         """Initialize the enemy and set its starting position."""
         self.screen = game.screen
         self.settings = game.settings
