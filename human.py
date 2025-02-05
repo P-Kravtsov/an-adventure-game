@@ -58,3 +58,10 @@ class Human:
     def blitme(self):
         """| Draw the human at its current location |"""
         self.screen.blit(self.image, self.rect)
+
+    def reset_movement(self):
+        """Reset all movement flags to stop the human from moving."""
+        self.moving_right = False
+        self.moving_left = False
+        self.moving_up = False
+        self.moving_down = False

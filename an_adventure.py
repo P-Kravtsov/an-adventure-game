@@ -166,6 +166,8 @@ class AnAdventure:
             print("The game is now paused.")
         else:
             print("The game has resumed.")
+            # Reset human movement when resuming the game
+            self.human.reset_movement()
 
     def show_pause_menu(self):
         """| Display a pause menu |"""
@@ -193,6 +195,51 @@ class AnAdventure:
 
         # Update the display to show the paused menu
         pygame.display.flip()
+
+    def show_custom_message(self):
+        """Display a custom message before showing the Blackjack rules."""
+        self.screen.fill(self.settings.bg_color)  # Fill background with the color from settings
+
+        # Title
+        font_title = pygame.font.Font(None, 74)
+        title_text = font_title.render("Blackjack Challenge", True, (0, 0, 0))
+        title_x = (self.settings.screen_width - title_text.get_width()) // 2
+        title_y = 50
+        self.screen.blit(title_text, (title_x, title_y))
+
+        # Custom Message
+        font_message = pygame.font.Font(None, 36)
+        message_lines = [
+            "Welcome to the ultimate Blackjack challenge!",
+            "Show your skills by defeating the dealer.",
+            "Remember: Play smart but trust your luck!",
+        ]
+        y_offset = 150
+        for line in message_lines:
+            message_text = font_message.render(line, True, (0, 0, 0))
+            message_x = (self.settings.screen_width - message_text.get_width()) // 2
+            self.screen.blit(message_text, (message_x, y_offset))
+            y_offset += 50  # Spacing between lines
+
+        # Continue Instructions
+        font_continue = pygame.font.Font(None, 48)
+        continue_text = font_continue.render("Press any key to see the rules.", True, (0, 100, 20))
+        continue_x = (self.settings.screen_width - continue_text.get_width()) // 2
+        continue_y = self.settings.screen_height - 100
+        self.screen.blit(continue_text, (continue_x, continue_y))
+
+        # Update the display
+        pygame.display.flip()
+
+        # Wait for user input
+        waiting = True
+        while waiting:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+                elif event.type == pygame.KEYDOWN:  # Any key pressed
+                    waiting = False
 
     def show_blackjack_rules(self):
         """Display a rules window before starting the Blackjack game."""
@@ -311,30 +358,40 @@ class AnAdventure:
         return distance
 
     def _start_blackjack_game(self):
-        """| Start the Blackjack game in a new window and pause the adventure game |"""
+        """Start the Blackjack game in a new window and pause the adventure game."""
         import subprocess
         import os
 
-        print("Displaying Blackjack rules...")  # Debug log
-        self.show_blackjack_rules()  # Show the rules window before starting Blackjack
+        print("Displaying custom message...")  # Debug log
+        self.show_custom_message()  # Show the custom message window first
 
-        print("Starting Blackjack...")  # Debugging print
+        print("Displaying Blackjack rules...")  # Debug log
+        self.show_blackjack_rules()  # Show the rules window next
+
+        print("Starting Blackjack...")  # Debug log
         self.paused = True  # Pause the game while Blackjack runs
 
-        # Define blackjack_path outside the try block
+        # Define the path to the Blackjack script
         blackjack_path = os.path.join(os.path.dirname(__file__), 'blackjack.py')
 
-        # Check if the blackjack.py file exists
+        # Check if the Blackjack script exists
         if not os.path.exists(blackjack_path):
             print(f"Error: blackjack.py not found at {blackjack_path}. Please ensure the file exists.")
-            return  # Exit the method early if the path is invalid
+            return  # Exit if the script does not exist
 
         try:
-            subprocess.run(["python", blackjack_path])  # Execute the Blackjack game
+            subprocess.run(["python", blackjack_path])  # Launch Blackjack game
         except FileNotFoundError:
             print(f"Error: blackjack.py not found at {blackjack_path}!")
         except Exception as e:
             print(f"Unexpected error occurred: {e}")
+
+        # Reset player movement after Blackjack
+        self.human.reset_movement()
+
+        # Resume the game
+        print("Returning from Blackjack...")
+        self.paused = False
 
     def _start_dialog(self):
         """Start the Dialog game in a new window and pause the adventure game."""
