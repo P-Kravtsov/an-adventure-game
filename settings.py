@@ -6,10 +6,10 @@ class Settings:
 
         # Screen settings
         self.screen_width = 1200
-        self.screen_height = 800
+        self.screen_height = 700
         self.bg_color = (234, 230, 230)
 
-        # Ship settings
-        self.human_speed_factor = 5.5
+        # Human settings
+        self.human_speed_factor = 4
 
-        self.fps = 60 # Frames per second
+        self.fps = 60 # FPS

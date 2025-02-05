@@ -36,7 +36,7 @@ class Button:
         self.font = button_font
 
     def draw(self, target_screen, cursor_position):
-        """Draws the button, changing color on hover."""
+        """| Draws the button, changing color on hover| """
         color = self.hover_color if self.rect.collidepoint(cursor_position) else self.default_color
         pygame.draw.rect(target_screen, color, self.rect)
         text_surface = self.font.render(self.label, True, self.label_color)
@@ -50,7 +50,7 @@ class Button:
 
 
 class UIManager:
-    """Handles rendering of UI elements like questions and messages."""
+    """| Handles rendering of UI elements like questions and messages |"""
 
     def __init__(self):
         self.question = ""

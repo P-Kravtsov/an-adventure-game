@@ -49,34 +49,10 @@ class AnAdventure:
 
         pygame.display.flip()
 
-    # Old not working code -
-    # distance = self._calculate_distance(self.human, self.enemy)
-    # if distance <= 35:
-    #     print(f"Distance is {distance}, starting Blackjack...")  # Debugging print
-    #     self._start_blackjack_game() are **outside the `while self.running` loop**, which means they are never executed as part of the game loop.
-    # This happens because:
-    # 1. The code to calculate the distance and trigger Blackjack is **after** the game loop exits (`while self.running:`).
-    # 2. When the game runs, the `pygame.quit()` and `sys.exit()` calls terminate the program **before the distance check is even reached**.
-
-    # def run_game(self):
-    #     """| Start the main loop for the game |"""
-    #
-    #     while self.running:
-    #         self._check_events()
-    #         if not self.paused:  # Only update the game if not paused
-    #             self.human.update()
-    #             self.enemy.update()
-    #             self._update_screen()
-    #         self.clock.tick(self.settings.fps)  # Limit the loop to run at 60 FPS
-    #
-    #     # Check the distance between human and enemy
-    #     distance = self._calculate_distance(self.human, self.enemy)
-    #     if distance <= 35:
-    #         print(f"Distance is {distance}, starting Blackjack...")  # Debugging print
-    #         self._start_blackjack_game()
-
     def run_game(self):
         """| Start the main loop for the game |"""
+        # Show the start screen
+        self.show_start_screen()
 
         while self.running:
             self._check_events()
@@ -122,7 +98,7 @@ class AnAdventure:
                         # Launch Dialog.py
                         self._start_dialog()
 
-                        #self.second_enemy = None  # Remove second enemy after the dialog ends
+                        # self.second_enemy = None  # Remove second enemy after the dialog ends
                         self.paused = False
 
                 self._update_screen()
@@ -135,21 +111,52 @@ class AnAdventure:
         pygame.quit()
         sys.exit()
 
-    # def _update_screen(self):
-    #     """| Update images on the screen, and flip to the new screen |"""
-    #
-    #     # Redraw the screen during each pass through the loop
-    #     self.screen.fill(self.settings.bg_color)
-    #     self.human.blitme()  # Draw the player
-    #     if self.enemy:  # Draw the monster only if it exists
-    #         self.enemy.blitme()
-    #
-    #     # if self.paused:
-    #     #     font = pygame.font.Font(None, 72)
-    #     #     text = font.render("Game Paused - Blackjack in Progress", True, (255, 0, 0))
-    #     #     self.screen.blit(text, (self.settings.screen_width // 4, self.settings.screen_height // 2))
-    #
-    #     pygame.display.flip()  # instead of "pygame.display.update()" | 229 | https://www.pygame.org/docs/ref/display.html#pygame.display.update |
+    def show_start_screen(self):
+        """| Display the start screen with game rules and instructions to start |"""
+        self.screen.fill(self.settings.bg_color)  # Fill background with the color from settings
+
+        # Title Display
+        font_title = pygame.font.Font(None, 74)  # Large font for title
+        title_text = font_title.render("An Adventure", True, (0, 0, 0))
+        title_x = (self.settings.screen_width - title_text.get_width()) // 2
+        title_y = 50  # Position at the top
+        self.screen.blit(title_text, (title_x, title_y))
+
+        # Rules/Instructions
+        font_rules = pygame.font.Font(None, 36)  # Medium font for rules
+        rules = [
+            "Rules:",
+            "1. Goal - to deal with Pavel and leave.",
+            "2. Move using arrow keys or WASD.",
+            "3. Press 'P' to pause the game.",
+            "4. Press 'Q' to quit at any time."
+        ]
+        y_offset = 150
+        for line in rules:
+            rule_text = font_rules.render(line, True, (0, 0, 0))  # Black text
+            rule_x = (self.settings.screen_width - rule_text.get_width()) // 2
+            self.screen.blit(rule_text, (rule_x, y_offset))
+            y_offset += 40  # Spacing between rules
+
+        # Start Instructions
+        font_start = pygame.font.Font(None, 48)  # Slightly larger font for start message
+        start_text = font_start.render("Press any key to start the game", True, (0, 100, 20))  # Yellow
+        start_x = (self.settings.screen_width - start_text.get_width()) // 2
+        start_y = self.settings.screen_height - 100
+        self.screen.blit(start_text, (start_x, start_y))
+
+        # Update display
+        pygame.display.flip()
+
+        # Wait for user input on the start screen
+        waiting = True
+        while waiting:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+                elif event.type == pygame.KEYDOWN:  # Any key pressed
+                    waiting = False
 
     def toggle_pause(self):
         """Toggle the pause state of the game."""
