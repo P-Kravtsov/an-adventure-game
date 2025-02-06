@@ -9,6 +9,8 @@ class Enemy:
         self.screen = game.screen
         self.settings = game.settings
 
+        self.image = self._load_image(image_path)
+
         # Set its rectangular position and size.
         self.rect = self.image.get_rect()
         self.rect.x = x
@@ -17,8 +19,6 @@ class Enemy:
         # Store the position as floats for fine-tuned movement.
         self.x = float(self.rect.x)
         self.y = float(self.rect.y)
-
-        self.image = self._load_image(image_path)
 
     def _load_image(self, image_path):
         """| Load the specified enemy image (default: 'enemy.bmp') |"""
