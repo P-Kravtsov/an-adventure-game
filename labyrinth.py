@@ -53,6 +53,7 @@ class Cell:
             pygame.draw.line(screen, pygame.Color('darkorange'), (x, y + TILE), (x, y), 2)
 
     def check_cell(self, x, y):
+        """| Return a neighboring cell if it's within the grid, otherwise return False |"""
         find_index = lambda x, y: x + y * cols
         if x < 0 or x > cols - 1 or y < 0 or y > rows - 1:
             return False
@@ -93,6 +94,12 @@ while True:
     [cell.draw() for cell in grid_cells]
     current_cell.visited = True
     current_cell.draw_current_cell() # Highlight the current cell
+
+    # Check if there is an unvisited neighboring cell
+    next_cell = current_cell.check_neighbors()
+    if next_cell:
+        next_cell.visited = True
+        current_cell = next_cell # Move to the next cell
 
     # Update display
     pygame.display.flip()
