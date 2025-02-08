@@ -52,6 +52,11 @@ class Cell:
         if self.walls["left"]:
             pygame.draw.line(screen, pygame.Color('darkorange'), (x, y + TILE), (x, y), 2)
 
+    def check_cell(self, x, y):
+        find_index = lambda x, y: x + y * cols
+        if x < 0 or x > cols - 1 or y < 0 or y > rows - 1:
+            return False
+        return grid_cells[find_index(x, y)]
 
 # Create a grid of cells for the maze
 grid_cells = [Cell(col, row) for row in range(rows) for col in range(cols)]  # Flattened cell grid list
