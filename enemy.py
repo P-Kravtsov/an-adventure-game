@@ -1,26 +1,32 @@
+from typing import Optional, Any
+from pygame.surface import Surface
+from pygame import Rect
 import pygame
 
 
 class Enemy:
-    """Class to manage enemies."""
+    """| Class to manage enemies |"""
 
-    def __init__(self, game, x=500, y=300, image_path='images/enemy.bmp'):
-        """Initialize the enemy and set its starting position."""
-        self.screen = game.screen
-        self.settings = game.settings
+    def __init__(self, game, x: int = 500, y: int = 300, image_path: str = 'images/enemy.bmp') -> None:
+        """
+        Initialize the enemy and set its starting position.
+        :param game: Instance of AnAdventure, providing settings and screen attributes.
+        """
+        self.screen: Optional[Surface] = game.screen # Allowing for the possibility that screen might be None.
+        self.settings: Optional[Any] = game.settings # Allowing settings to be of any type and potentially None.
 
-        self.image = self._load_image(image_path)
+        self.image: Surface = self._load_image(image_path)
 
         # Set its rectangular position and size.
-        self.rect = self.image.get_rect()
+        self.rect: Rect = self.image.get_rect()  #The rectangle for positioning.
         self.rect.x = x
         self.rect.y = y
 
         # Store the position as floats for fine-tuned movement.
-        self.x = float(self.rect.x)
-        self.y = float(self.rect.y)
+        self.x: float = float(self.rect.x)
+        self.y: float = float(self.rect.y)
 
-    def _load_image(self, image_path):
+    def _load_image(self, image_path: str) -> Surface:
         """| Load the specified enemy image (default: 'enemy.bmp') |"""
         try:
             return pygame.image.load(image_path)
@@ -28,11 +34,12 @@ class Enemy:
             print(f"Error loading enemy image at {image_path}: {e}")
             raise
 
-    def update(self):
-        """Update the enemy's position or behavior (if any)."""
+    def update(self) -> None:
+        """| Update the enemy's position or behavior (if any) |"""
+
         # This is for a simple vertical movement example, expand as needed.
         self.rect.y = int(self.y)  # Sync rectangle with position.
 
-    def blitme(self):
-        """Draw the enemy at its current location."""
+    def blitme(self) -> None:
+        """| Draw the enemy’s image at its current location (using its Rect) |"""
         self.screen.blit(self.image, self.rect)
